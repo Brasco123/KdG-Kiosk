@@ -9,12 +9,6 @@ log() {
     echo "[$ts] $*" | tee -a "$LOGFILE"
 }
 
-restore_gsettings() {
-    gsettings set org.gnome.desktop.wm.keybindings switch-applications "[]"
-    gsettings set org.gnome.desktop.wm.keybindings switch-windows "[]"
-    gsettings set org.gnome.mutter overlay-key ''
-}
-
 cleanup() {
     rm -f "$PIDFILE" "/tmp/kiosk-exit.flag"
     kill "$KEYLISTENER_PID" 2>/dev/null
