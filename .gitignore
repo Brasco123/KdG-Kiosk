@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Virtual environment
+venv/
+
+# Logs
+*.log
+/tmp/
+
+# OS files
+.DS_Store
+*.swp
+
+nohup.out
