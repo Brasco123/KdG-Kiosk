@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Exec=xbindkeys
+Hidden=false
+NoDisplay=false
+X-GNOME-Autostart-enabled=true
+Name=Kiosk Exit Key Listener
+Comment=Luistert naar geheime toetscombinatie
