@@ -1,6 +1,6 @@
 URL="https://www.kdg.be"
 LOGFILE="/tmp/kiosk.log"
 EXIT_KEY="Ctrl+Shift+K"
-BROWSER="firefox"
+BROWSER="chromium"
 PIDFILE="/tmp/kiosk-main.pid"
 KEYLISTENER_SCRIPT="$(dirname "$0")/kiosk_keylistener.py"

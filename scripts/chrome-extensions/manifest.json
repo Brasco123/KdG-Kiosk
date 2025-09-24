@@ -1,0 +1,18 @@
+{
+    "manifest_version": 3,
+    "name": "Kiosk Key Blocker",
+    "version": "1.0",
+    "description": "Block all keyboard shortcuts",
+    "permissions": ["tabs", "scripting"],
+    "background": {
+      "service_worker": "background.js"
+    },
+    "content_scripts": [
+      {
+        "matches": ["<all_urls>"],
+        "js": ["content.js"],
+        "run_at": "document_start"
+      }
+    ]
+  }
+  
