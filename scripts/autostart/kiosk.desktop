@@ -1,8 +1,0 @@
-[Desktop Entry]
-Type=Application
-Exec=/home/christoph/Documenten/Scripts/startkiosk.sh
-Hidden=false
-NoDisplay=false
-X-GNOME-Autostart-enabled=false
-Name=Kiosk
-Comment=Start browser in kiosk

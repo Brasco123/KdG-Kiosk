@@ -1,10 +1,14 @@
 #!/bin/bash
 
 source scripts/kiosk-config.sh
-./scripts/keys/disbale_keys.sh
-./scripts/keys/keybind.sh
+DEFAULT_KEYMAP_FILE="$HOME/.xmodmap-default"
+XBINDKEYS_CONFIG="$HOME/.xbindkeysrc_kiosk"
 
-EXT_PATH="./scripts/chrome-extensions/"
+PAUSE_KEYCODE=127 # Keycode for the pause knop
+VOLUME_UP_KEYCODE=123
+RESET_KEY_NAME="XF86AudioRaiseVolume"
+
+RESET_COMMAND="pkill -f $BROWSER; restore_keys"
 
 # Functie gebruikt om logs te bewaren
 log() {
@@ -13,63 +17,73 @@ log() {
     echo "[$ts] $*" | tee -a "$LOGFILE"
 }
 
-cleanup() {
-    rm -f "$PIDFILE" "/tmp/kiosk-exit.flag"
-    kill "$KEYLISTENER_PID" 2>/dev/null
-    pkill -x "$(basename $BROWSER)" 2>/dev/null
-    ./scripts/keys/enable_keys.sh
-    log "Cleanup done."
+run_kiosk(){
+    xbindkeys -f "XBINDKEYS_CONFIG" &
+    log "Starting Kiosk Application"
+    $BROWSER --kiosk --incognito $URL
+    KIOSK_PID=$!
+    wait $KIOSK_PID
+    pkill xbindkeys 2>/dev/null
+    restore_keys
 }
-trap cleanup EXIT
 
+restore_keys(){
+    log "Restoring keys..."
+    pkill xbindkeys 2>/dev/null
+    if [ -f $DEFAULT_KEYMAP_FILE ]; then
+        xmodmap 
+        log "Keymap restored."
+    else
+        setxkbmap -layout be
+        log "No default keymap file found, keyboard reset to Belgian keyboard layout."
+    fi
+    exit 0
+}
 
-# Zal nakijken of er al een process loopt
-if [[ -f "$PIDFILE" ]] && kill -0 "$(cat "$PIDFILE")" 2>/dev/null; then
-    echo "Kiosk is already running." >&2
-    exit 1
+# Default keymap opslaan
+if [ ! -f "$DEFAULT_KEYMAP_FILE" ]; then
+    log "Saving default keymap to $DEFAULT_KEYMAP_FILE..."
+    xmodmap -pke > $DEFAULT_KEYMAP_FILE
 fi
-echo $$ > "$PIDFILE"
 
+# Configure xbindkeys
+log "Configuring xbindkeys..."
+cat > "$XBINDKEYS_CONFIG" << EOF
+# Key combination to exit kiosk mode Pause/Break (Mod3) + VolumeUp
+"$RESET_COMMAND"
+    k
+EOF
 
-# Starten Kiosk
-log "Starting kiosk browser..."
-EXT_PATH="/home/tibo/Documents/IP/KdG-Kiosk/scripts/chrome-extension"
-$BROWSER  \
-  --app="$URL" \
-  --load-extension="$EXT_PATH" \
-  --kiosk \
-  --incognito \
-  --noerrdialogs \
-  --disable-translate \
-  --overscroll-history-navigation=0 \
-  --disable-pinch \
-  --disable-features=TranslateUI,AutofillServerCommunication,BookmarkSuggestions \
-  --disable-background-mode \
-  --disable-breakpad \
-  --disable-session-crashed-bubble \
-  --disable-sync \
-  --disable-print-preview \
-  --no-first-run \
-  --no-default-browser-check 2>&1 &
+# Clearing modifiers
+log "Clearing modifiers..."
+xmodmap -e "clear shift"
+xmodmap -e "clear control"
+xmodmap -e "clear mod1" # alt
+xmodmap -e "clear mod4" # Super/Windows
 
-BROWSER_PID=$!
-log "Browser started with PID $BROWSER_PID"
+# Enabling Mod3 - Scroll lock
+log "Binding Pause/Break (Keycode $PAUSE_KEYCODE) to Mod3."
+xmodmap -e "clear mod3"
+xmodmap -e "keycode $PAUSE_KEYCODE = Pause"
+xmodmap -e "add mod3 = Pause"
 
-for i in {1..10}; do
-    if kill -0 "$BROWSER_PID" 2>/dev/null; then
-        break
-    fi
-    sleep 1
+# Unbinding keys
+log "Unbinding keys..."
+xmodmap -e "keycode 50 = NoSymbol"    # Shift_L
+xmodmap -e "keycode 62 = NoSymbol"    # Shift_R
+xmodmap -e "keycode 37 = NoSymbol"    # Control_L
+xmodmap -e "keycode 105 = NoSymbol"   # Control_R
+xmodmap -e "keycode 64 = NoSymbol"    # Alt_L
+xmodmap -e "keycode 108 = NoSymbol"   # Alt_R
+xmodmap -e "keycode 133 = NoSymbol"   # Super_L
+xmodmap -e "keycode 134 = NoSymbol"   # Super_R
+xmodmap -e "keycode 9 = NoSymbol"     # Escape
+
+# Disabling F-keys
+log "Disabling F-keys..."
+for i in {67..78}; do # F1 (67) through F12 (78)
+    xmodmap -e "keycode $i = NoSymbol"
 done
 
-# Checken of exit-key gebruikt is
-while kill -0 "$BROWSER_PID" 2>/dev/null; do
-    if [[ -f /tmp/kiosk-exit.flag ]]; then
-        log "Exit key pressed, stopping kiosk..."
-        kill "$BROWSER_PID"
-        break
-    fi
-    sleep 1
-done
-
-log "Browser closed, kiosk stopped"
+# Start application
+run_kiosk
