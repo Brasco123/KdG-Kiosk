@@ -2,7 +2,7 @@
 
 source scripts/kiosk-config.sh
 DEFAULT_KEYMAP_FILE="$HOME/.xmodmap-default"
-XBINDKEYS_CONFIG="$HOME/.xbindkeysrc_kiosk"
+XBINDKEYS_CONFIG="~/.xbindkeysrc_kiosk"
 
 PAUSE_KEYCODE=127 # Keycode for the pause knop
 VOLUME_UP_KEYCODE=123
@@ -18,9 +18,11 @@ log() {
 }
 
 run_kiosk(){
-    xbindkeys -f "XBINDKEYS_CONFIG" &
     log "Starting Kiosk Application"
-    $BROWSER --kiosk --incognito $URL
+    xset -dpms
+    xset s off
+    xset s noblank
+    $BROWSER --kiosk --noerrdialogs --disable-infobars --no-first-run --fast --fast-start --disable-pinch --overscroll-history-navigation=0 --incognito --disable-session-crashed-bubble --disable-translate --disable-restore-session-state --no-default-browser-check --disable-sync --disable-print-preview --disable-extensions --disable-features=TranslateUI, TabHoverCards, TabGroups --app="$URL"
     KIOSK_PID=$!
     wait $KIOSK_PID
     pkill xbindkeys 2>/dev/null
@@ -31,7 +33,7 @@ restore_keys(){
     log "Restoring keys..."
     pkill xbindkeys 2>/dev/null
     if [ -f $DEFAULT_KEYMAP_FILE ]; then
-        xmodmap 
+        setxkbmap -layout be
         log "Keymap restored."
     else
         setxkbmap -layout be
@@ -48,11 +50,13 @@ fi
 
 # Configure xbindkeys
 log "Configuring xbindkeys..."
-cat > "$XBINDKEYS_CONFIG" << EOF
+cat > ~/.xbindkeysrc_kiosk << EOF
 # Key combination to exit kiosk mode Pause/Break (Mod3) + VolumeUp
 "$RESET_COMMAND"
-    k
+    F11 + F12
 EOF
+
+xbindkeys -f ~/.xbindkeysrc_kiosk
 
 # Clearing modifiers
 log "Clearing modifiers..."
@@ -81,7 +85,7 @@ xmodmap -e "keycode 9 = NoSymbol"     # Escape
 
 # Disabling F-keys
 log "Disabling F-keys..."
-for i in {67..78}; do # F1 (67) through F12 (78)
+for i in {67..76}; do # F1 (67) through F10 (78)
     xmodmap -e "keycode $i = NoSymbol"
 done
 
