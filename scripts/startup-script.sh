@@ -4,10 +4,6 @@ source scripts/kiosk-config.sh
 DEFAULT_KEYMAP_FILE="$HOME/.xmodmap-default"
 XBINDKEYS_CONFIG="~/.xbindkeysrc_kiosk"
 
-PAUSE_KEYCODE=127 # Keycode for the pause knop
-VOLUME_UP_KEYCODE=123
-RESET_KEY_NAME="XF86AudioRaiseVolume"
-
 RESET_COMMAND="pkill -f $BROWSER; restore_keys"
 
 # Functie gebruikt om logs te bewaren
@@ -19,10 +15,25 @@ log() {
 
 run_kiosk(){
     log "Starting Kiosk Application"
-    xset -dpms
-    xset s off
-    xset s noblank
-    $BROWSER --kiosk --noerrdialogs --disable-infobars --no-first-run --fast --fast-start --disable-pinch --overscroll-history-navigation=0 --incognito --disable-session-crashed-bubble --disable-translate --disable-restore-session-state --no-default-browser-check --disable-sync --disable-print-preview --disable-extensions --disable-features=TranslateUI, TabHoverCards, TabGroups --app="$URL"
+    $BROWSER --kiosk \
+    --noerrdialogs \
+    --disable-infobars \
+    --no-first-run \
+    --fast \
+    --fast-start \
+    --disable-pinch \
+    --overscroll-history-navigation=0 \
+    --incognito \
+    --disable-session-crashed-bubble \
+    --disable-translate \
+    --disable-restore-session-state \
+    --no-default-browser-check \
+    --disable-sync \
+    --disable-print-preview \
+    --disable-extensions \
+    --disable-features=TranslateUI, TabHoverCards, TabGroups \
+    "$URL"
+    
     KIOSK_PID=$!
     wait $KIOSK_PID
     pkill xbindkeys 2>/dev/null
@@ -41,6 +52,8 @@ restore_keys(){
     fi
     exit 0
 }
+
+touch $LOGFILE
 
 # Default keymap opslaan
 if [ ! -f "$DEFAULT_KEYMAP_FILE" ]; then
@@ -64,12 +77,6 @@ xmodmap -e "clear shift"
 xmodmap -e "clear control"
 xmodmap -e "clear mod1" # alt
 xmodmap -e "clear mod4" # Super/Windows
-
-# Enabling Mod3 - Scroll lock
-log "Binding Pause/Break (Keycode $PAUSE_KEYCODE) to Mod3."
-xmodmap -e "clear mod3"
-xmodmap -e "keycode $PAUSE_KEYCODE = Pause"
-xmodmap -e "add mod3 = Pause"
 
 # Unbinding keys
 log "Unbinding keys..."
