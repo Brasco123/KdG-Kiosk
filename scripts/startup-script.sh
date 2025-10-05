@@ -15,24 +15,7 @@ log() {
 
 run_kiosk(){
     log "Starting Kiosk Application"
-    $BROWSER --kiosk \
-    --noerrdialogs \
-    --disable-infobars \
-    --no-first-run \
-    --fast \
-    --fast-start \
-    --disable-pinch \
-    --overscroll-history-navigation=0 \
-    --incognito \
-    --disable-session-crashed-bubble \
-    --disable-translate \
-    --disable-restore-session-state \
-    --no-default-browser-check \
-    --disable-sync \
-    --disable-print-preview \
-    --disable-extensions \
-    --disable-features=TranslateUI, TabHoverCards, TabGroups \
-    "$URL"
+    $BROWSER --kiosk --private-window "$URL" --new-instance --no-remote
     
     KIOSK_PID=$!
     wait $KIOSK_PID
