@@ -1,45 +1,46 @@
 #!/bin/bash
+set -euo pipefail
 
-source scripts/kiosk-config.sh
-DEFAULT_KEYMAP_FILE="$HOME/.xmodmap-default"
-XBINDKEYS_CONFIG="~/.xbindkeysrc_kiosk"
+source ~/Documenten/Scripts/kiosk-config.sh
+# source scripts/kiosk-config.sh
 
-RESET_COMMAND="pkill -f $BROWSER; restore_keys"
-
-# Functie gebruikt om logs te bewaren
 log() {
     local ts
     ts="$(date '+%F %T')"
     echo "[$ts] $*" | tee -a "$LOGFILE"
 }
 
-run_kiosk(){
-    log "Starting Kiosk Application"
-    $BROWSER --kiosk --private-window "$URL" --new-instance --no-remote
-    
-    KIOSK_PID=$!
-    wait $KIOSK_PID
-    pkill xbindkeys 2>/dev/null
-    restore_keys
+cleanup() {
+    rm -f "$PIDFILE" "/tmp/kiosk-exit.flag"
+    pkill -x "$(basename "$BROWSER")" 2>/dev/null || true
+    pkill xbindkeys 2>/dev/null || true
+    log "Cleanup done."
 }
+trap cleanup EXIT
 
-restore_keys(){
-    log "Restoring keys..."
-    pkill xbindkeys 2>/dev/null
-    if [ -f $DEFAULT_KEYMAP_FILE ]; then
-        setxkbmap -layout be
-        log "Keymap restored."
-    fi
-    exit 0
-}
+# ========================
+# SQUID CONFIG GENEREREN
+# ========================
+if [[ -f "$SQUID_TEMPLATE" ]]; then
+  log "Generating Squid configuration from template..."
+  envsubst < "$SQUID_TEMPLATE" | sudo tee "$SQUID_CONFIG" > /dev/null
+  sudo systemctl restart squid
+  log "Squid configuration applied and service restarted."
+else
+  log "Warning: Squid template not found at $SQUID_TEMPLATE"
+fi
 
-touch $LOGFILE
+# ========================
+# KEYBOARD LOCKDOWN
+# ========================
+touch "$LOGFILE"
 
 # Default keymap opslaan
 if [ ! -f "$DEFAULT_KEYMAP_FILE" ]; then
     log "Saving default keymap to $DEFAULT_KEYMAP_FILE..."
-    xmodmap -pke > $DEFAULT_KEYMAP_FILE
+    xmodmap -pke > "$DEFAULT_KEYMAP_FILE"
 fi
+
 # Configure xbindkeys
 log "Configuring xbindkeys..."
 cat > ~/.xbindkeysrc_kiosk << EOF
@@ -65,14 +66,33 @@ xmodmap -e "keycode 133 = NoSymbol"   # Super_L
 xmodmap -e "keycode 134 = NoSymbol"   # Super_R
 xmodmap -e "keycode 9 = NoSymbol"     # Escape
 xmodmap -e "keycode 23 = NoSymbol"    # Tab
+
 # Disabling F-keys
 log "Disabling F-keys..."
-# Disable all F-keys *except F8* for your admin combo
 for i in {67..79}; do  # F1..F12
     if [ $i -ne 74 ]; then  # Skip F8 (keycode 74)
         xmodmap -e "keycode $i = NoSymbol"
     fi
 done
 
-# Start application
-run_kiosk
+# ========================
+# BROWSER STARTEN
+# ========================
+log "Starting Kiosk Browser via proxy $PROXY_URL ..."
+"$BROWSER" \
+  --kiosk \
+  --incognito \
+  --proxy-server="$PROXY_URL" \
+  --new-window "$URL" 2>&1 &
+
+BROWSER_PID=$!
+log "Browser started with PID $BROWSER_PID"
+wait $BROWSER_PID
+
+# Restore keys na afsluiten
+log "Restoring keys..."
+pkill xbindkeys 2>/dev/null
+setxkbmap -layout be
+log "Keyboard layout restored."
+
+log "Browser closed, kiosk stopped."
