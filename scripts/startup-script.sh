@@ -4,6 +4,8 @@ set -euo pipefail
 source ~/Documenten/Scripts/kiosk-config.sh
 # source scripts/kiosk-config.sh
 
+RESET_COMMAND="pkill -f $BROWSER; restore_keys"
+
 log() {
     local ts
     ts="$(date '+%F %T')"
