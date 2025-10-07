@@ -1,4 +1,6 @@
 # KdG-Kiosk
 
 Make sure to first run
-`sudo apt install xbindkeys chromium x11-utils
+sudo add-apt-repository ppa:xtradeb/apps
+sudo apt update
+sudo apt install chromium xbindkeys
