@@ -59,7 +59,7 @@ xmodmap -e "clear mod4" # Super/Windows
 log "Unbinding keys..."
 xmodmap -e "keycode 37 = NoSymbol"    # Control_L
 xmodmap -e "keycode 105 = NoSymbol"   # Control_R
-xmodmap -e "keycode 64 = NoSymbol"   # Alt_L
+# xmodmap -e "keycode 64 = NoSymbol"   # Alt_L
 xmodmap -e "keycode 108 = NoSymbol"   # Alt_R
 xmodmap -e "keycode 133 = NoSymbol"   # Super_L
 xmodmap -e "keycode 134 = NoSymbol"   # Super_R
