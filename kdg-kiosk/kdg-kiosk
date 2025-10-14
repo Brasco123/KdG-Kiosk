@@ -1,0 +1,2 @@
+#!/bin/sh
+env bash usr/share/kdg-kiosk/startup-script.sh

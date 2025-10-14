@@ -1,0 +1,9 @@
+a7b35f52b3d5ff3898478690dc0871a3  usr/bin/kdg-kiosk
+e2474f7ba2d02ebb0467604c48833517  usr/share/applications/kiosk.desktop
+9f7d9c9e1b6e5f10c4ebe45638e9b96f  usr/share/doc/kdg-kiosk/changelog.gz
+a6d2ed4b5e21c8870d67ad78118c7cd1  usr/share/doc/kdg-kiosk/copyright
+98e5177888f14120688682936389dfe4  usr/share/kdg-kiosk/kiosk-config.sh
+8ffb2f9e403f9c8b72faa2151beab2b5  usr/share/kdg-kiosk/squid.conf.template
+03d079b6a41a8732c74a5f6930f52068  usr/share/kdg-kiosk/squid/whitelist.acl
+da775006ef551816ce526d27afeba89a  usr/share/kdg-kiosk/startup-script.sh
+f26c45ed03631ec6f7e0ca70a5c64285  usr/share/pixmaps/kiosk.png

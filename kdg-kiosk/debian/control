@@ -1,0 +1,12 @@
+Source: kdg-kiosk
+Section: misc
+Priority: optional
+Maintainer: olivier peeters <olivier.peeters.2@student.kdg.be>
+Build-Depends: debhelper (>=10)
+Standards-Version: 4.1.4
+
+
+Package: kdg-kiosk
+Architecture: any
+Depends: ${misc:Depends}, squid, chromium, xbindkeys
+Description: kdg kiosk

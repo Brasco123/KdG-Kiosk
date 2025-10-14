@@ -4,11 +4,11 @@
 # ==========================
 
 # Browser en URL
-export BROWSER="chromium"
+export BROWSER="firefox"
 export URL="https://www.kdg.be"
 
 # Proxy instellingen
-export PROXY_IP="192.168.57.102"
+export PROXY_IP="192.168.172.6"
 export PROXY_PORT="3128"
 export PROXY_URL="http://${PROXY_IP}:${PROXY_PORT}"
 

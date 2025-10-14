@@ -1,0 +1,7 @@
+./scripts/kiosk-config.sh
+./scripts/startup-script.sh
+./scripts/squid.conf.template
+./scripts/squid/whitelist.acl
+./kiosk.desktop
+./scripts/kdg-kiosk
+./kiosk.png
