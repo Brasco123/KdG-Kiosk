@@ -1,17 +1,25 @@
-# Python
-__pycache__/
-*.pyc
-*.pyo
+# Debian package build artifacts
+*.deb
+*.dsc
+*.changes
+*.build
+*.buildinfo
+*.tar.gz
 
-# Virtual environment
-venv/
+# Auto-generated Debian helper files
+debian/.debhelper/
+debian/debhelper-build-stamp
+debian/kdg-kiosk/
+debian/kdg-kiosk.substvars
 
-# Logs
-*.log
-/tmp/
+# Build directories
+build/
+dist/
+tmp/
 
-# OS files
-.DS_Store
+# Editor / system junk
+*~
 *.swp
-
-nohup.out
+*.bak
+.DS_Store
+Thumbs.db
