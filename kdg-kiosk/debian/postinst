@@ -8,6 +8,32 @@ case "$1" in
     ;;
 esac
 
+# Add xtradeb/apps PPA if missing
+if ! grep -rq "xtradeb/apps" /etc/apt/sources.list.d/ /etc/apt/sources.list; then
+    echo "- Adding xtradeb/apps repository..."
+    sudo add-apt-repository -y ppa:xtradeb/apps
+fi
+
+# Update package list
+sudo apt update -y
+
+# Ensure snap version is gone
+if snap list | grep -q chromium; then
+    echo "- Removing Snap Chromium..."
+    sudo snap remove chromium || true
+fi
+
+# Install chromium package
+echo "- Installing Chromium from xtradeb..."
+sudo apt install -y chromium --allow-change-held-packages
+
+# Verify correct binary
+if [ "$(command -v chromium)" = "/usr/bin/chromium" ]; then
+    echo "Chromium installed successfully at /usr/bin/chromium"
+else
+    echo "WARNING: Chromium may not be installed from xtradeb correctly!"
+fi
+
 exit 0
 
 #DEBHELPER#
