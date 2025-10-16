@@ -6,12 +6,12 @@
 # Proxy poort (wordt dynamisch ingevuld)
 http_port ${PROXY_IP}:${PROXY_PORT}
 
+
 # Alleen interne clients
-acl localnet src 192.168.57.0/24
+acl localnet src 127.0.01/32
 
 # Whitelist van toegestane websites
-acl allowed_websites dstdomain "/etc/squid/whitelist.acl"
-
+acl allowed_websites dstdomain "/usr/share/kdg-kiosk/squid/whitelist.acl"
 
 # Alleen veilige poorten
 acl SSL_ports port 443
