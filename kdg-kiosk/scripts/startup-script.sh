@@ -3,7 +3,7 @@ set -euo pipefail
 
 
 
-source /etc/kdg-kiosk/kiosk-config.sh
+source /usr/share/kdg-kiosk/kiosk-config.sh
 # source scripts/kiosk-config.sh
 
 RESET_COMMAND="pkill -f $BROWSER; restore_keys"

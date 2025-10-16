@@ -1,7 +1,7 @@
-scripts/kiosk-config.sh /etc/squid/config.d
+scripts/kiosk-config.sh usr/share/kdg-kiosk/
 scripts/startup-script.sh usr/share/kdg-kiosk/
 scripts/squid.conf.template /etc/squid/config.d
 scripts/squid/whitelist.acl usr/share/kdg-kiosk/squid/
 kiosk.desktop usr/share/applications
 scripts/kdg-kiosk usr/bin
-kiosk.png /usr/share/pixmaps
+kiosk.png usr/share/pixmaps
