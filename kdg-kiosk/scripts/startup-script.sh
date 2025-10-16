@@ -1,7 +1,9 @@
 #!/bin/bash
 set -euo pipefail
 
-source /usr/share/kdg-kiosk/kiosk-config.sh
+
+
+source /etc/kdg-kiosk/kiosk-config.sh
 # source scripts/kiosk-config.sh
 
 RESET_COMMAND="pkill -f $BROWSER; restore_keys"
@@ -80,19 +82,22 @@ done
 # ========================
 # BROWSER STARTEN
 # ========================
-log "Starting Kiosk Browser via proxy $PROXY_URL ..."
+log "Starting Kiosk Browser via proxy ${PROXY_URL} ..."
 "$BROWSER" \
   --kiosk \
   --incognito \
-  --proxy-server="$PROXY_URL" \
-  --new-window "$URL" 2>&1 &
+  --no-first-run \
+  --noerrdialogs \
+  --disable-infobars \
+  --proxy-server="${PROXY_URL}" \
+  --new-window "$URL" 2>&1 & 
+
 
 BROWSER_PID=$!
 log "Browser started with PID $BROWSER_PID"
 wait $BROWSER_PID
 
-# Restore keys na afsluiten
-log "Restoring keys..."
+# Restore keys na afsluitenlog "Restoring keys..."
 pkill xbindkeys 2>/dev/null
 setxkbmap -layout be
 log "Keyboard layout restored."
