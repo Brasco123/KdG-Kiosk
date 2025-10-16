@@ -4,16 +4,16 @@
 # ==========================
 
 # Browser en URL
-export BROWSER="firefox"
+export BROWSER="chromium"
 export URL="https://www.kdg.be"
 
 # Proxy instellingen
-export PROXY_IP="192.168.172.6"
+export PROXY_IP="127.0.0.1"
 export PROXY_PORT="3128"
 export PROXY_URL="http://${PROXY_IP}:${PROXY_PORT}"
 
 # Squid template en config pad
-export SQUID_TEMPLATE="/etc/squid/squid.conf.template"
+export SQUID_TEMPLATE="/etc/kdg-kiosk/squid.conf.template"
 export SQUID_CONFIG="/etc/squid/squid.conf"
 
 # Logging en PID
