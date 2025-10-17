@@ -10,3 +10,4 @@ Package: kdg-kiosk
 Architecture: any
 Depends: ${misc:Depends}, squid, chromium, xbindkeys
 Description: kdg kiosk
+    Start een Kiosk op in de gekozen web browser met gewenste url.
