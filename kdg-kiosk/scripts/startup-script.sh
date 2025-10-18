@@ -1,12 +1,9 @@
 #!/bin/bash
 set -euo pipefail
 
-
-
 source /usr/share/kdg-kiosk/kiosk-config.sh
-# source scripts/kiosk-config.sh
 
-RESET_COMMAND="pkill -f $BROWSER; restore_keys"
+RESET_COMMAND="pkill -f $BROWSER"
 
 log() {
     local ts
@@ -15,24 +12,20 @@ log() {
 }
 
 cleanup() {
+    log "Starting cleanup..."
+    
+    # Remove temporary files
     rm -f "$PIDFILE" "/tmp/kiosk-exit.flag"
-    pkill -x "$(basename "$BROWSER")" 2>/dev/null || true
+    
+    # Stop xbindkeys
     pkill xbindkeys 2>/dev/null || true
-    log "Cleanup done."
+    setxkbmap -layout $KEYMAP_LANG
+    pkill -x "$(basename "$BROWSER")" 2>/dev/null || true
+    sleep 0.5
+    
+    log "Cleanup completed successfully."
 }
 trap cleanup EXIT
-
-# ========================
-# SQUID CONFIG GENEREREN
-# ========================
-if [[ -f "$SQUID_TEMPLATE" ]]; then
-  log "Generating Squid configuration from template..."
-  envsubst < "$SQUID_TEMPLATE" | sudo tee "$SQUID_CONFIG" > /dev/null
-  sudo systemctl restart squid
-  log "Squid configuration applied and service restarted."
-else
-  log "Warning: Squid template not found at $SQUID_TEMPLATE"
-fi
 
 # ========================
 # KEYBOARD LOCKDOWN
@@ -47,12 +40,29 @@ fi
 
 # Configure xbindkeys
 log "Configuring xbindkeys..."
-cat > ~/.xbindkeysrc_kiosk << EOF
+
+# Convert CUSTOM_KEYBIND format (Alt+5) to xbindkeys format (Alt + 5)
+XBINDKEYS_KEYBIND=$(echo "$CUSTOM_KEYBIND" | sed 's/+/ + /g')
+
+cat > "$XBINDKEYS_CONFIG" << EOF
 "$RESET_COMMAND"
-    Alt + 5
+    $XBINDKEYS_KEYBIND
 EOF
 
-xbindkeys -f ~/.xbindkeysrc_kiosk
+# Kill any existing xbindkeys process
+pkill xbindkeys 2>/dev/null || true
+sleep 1
+
+# Start xbindkeys with the new configuration
+log "Starting xbindkeys with config: $XBINDKEYS_CONFIG"
+xbindkeys -f "$XBINDKEYS_CONFIG"
+
+# Verify xbindkeys is running
+if pgrep xbindkeys > /dev/null; then
+    log "xbindkeys started successfully"
+else
+    log "WARNING: xbindkeys failed to start"
+fi
 
 # Clearing modifiers
 log "Clearing modifiers..."
@@ -96,10 +106,3 @@ log "Starting Kiosk Browser via proxy ${PROXY_URL} ..."
 BROWSER_PID=$!
 log "Browser started with PID $BROWSER_PID"
 wait $BROWSER_PID
-
-# Restore keys na afsluitenlog "Restoring keys..."
-pkill xbindkeys 2>/dev/null
-setxkbmap -layout be
-log "Keyboard layout restored."
-
-log "Browser closed, kiosk stopped."
