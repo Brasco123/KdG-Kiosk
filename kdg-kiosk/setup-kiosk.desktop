@@ -1,5 +1,5 @@
 [Desktop Entry]
-Name=KdG Kiosk Setup Wizard
+Name=kdg-setup-wizard
 Comment=Configure the KdG Kiosk environment
 Exec=python3 /usr/share/kdg-kiosk/setup_wizard.py
 Icon=kiosk

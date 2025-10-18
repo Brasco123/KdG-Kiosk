@@ -22,7 +22,13 @@ from PyQt5.QtWidgets import (
 
 CONFIG_FILE = "/usr/share/kdg-kiosk/kiosk-config.sh"
 LOGO_PATH = "/usr/share/pixmaps/kiosk.png"
-DISALLOWED_KEYS = [Qt.Key_Escape, Qt.Key_Tab, Qt.Key_Super_L, Qt.Key_Super_R]
+DISALLOWED_KEYS = [
+    Qt.Key_Escape,
+    Qt.Key_Tab,
+    Qt.Key_Super_L,
+    Qt.Key_Super_R,
+    Qt.Key_Control,
+]
 
 
 # ---------- Config Loader ----------
@@ -160,10 +166,17 @@ class KeybindPage(QWizardPage):
 
         self.key_input = QLineEdit(self.key_sequence)
         self.key_input.setPlaceholderText(
-            "Press your desired key combination (No Windows, Esc or Tab)..."
+            "Press your desired key combination (Avoid Windows, Esc, Ctrl, Tab keys)..."
         )
         self.key_input.setReadOnly(True)
+
+        # Add a helpful label
+        help_label = QLabel(
+            "Note: Windows/Super, Escape, Ctrl and Tab keys are not allowed for security reasons."
+        )
+        help_label.setStyleSheet("color: #666; font-size: 11px; font-style: italic;")
         layout.addWidget(self.key_input)
+        layout.addWidget(help_label)
         layout.addStretch(1)
         self.setLayout(layout)
         self.key_input.installEventFilter(self)
@@ -171,6 +184,27 @@ class KeybindPage(QWizardPage):
     def eventFilter(self, obj, event):
         if obj == self.key_input and event.type() == event.KeyPress:
             key = event.key()
+
+            # Check for disallowed keys FIRST before processing anything
+            if key in DISALLOWED_KEYS:
+                key_names = {
+                    Qt.Key_Escape: "Escape",
+                    Qt.Key_Tab: "Tab",
+                    Qt.Key_Super_L: "Windows/Super (Left)",
+                    Qt.Key_Super_R: "Windows/Super (Right)",
+                    Qt.Key_Control: "Ctrl",
+                }
+                key_name = key_names.get(key, "Unknown")
+                QMessageBox.warning(
+                    self,
+                    "Invalid Key",
+                    f"The {key_name} key is not allowed for security reasons.\n\nPlease choose a different key combination for your exit key.",
+                )
+                # Clear any existing input to show the key was rejected
+                self.key_input.clear()
+                return True
+
+            # Only process allowed keys
             mods = []
             if event.modifiers() & Qt.ShiftModifier:
                 mods.append("Shift")
@@ -178,9 +212,7 @@ class KeybindPage(QWizardPage):
                 mods.append("Ctrl")
             if event.modifiers() & Qt.AltModifier:
                 mods.append("Alt")
-            if key in DISALLOWED_KEYS:
-                QMessageBox.warning(self, "Invalid key", "This key is not allowed.")
-                return True
+
             key_name = event.text().upper() if event.text() else f"Key{key}"
             mods.append(key_name)
             self.key_sequence = "+".join(mods)
