@@ -103,3 +103,7 @@ log "Starting Kiosk Browser via proxy ${PROXY_URL} ..."
 
 BROWSER_PID=$!
 log "Browser started with PID $BROWSER_PID"
+
+# Wait for browser to exit (either normally or by exit key)
+log "Kiosk running. Press exit key to stop."
+wait $BROWSER_PID
