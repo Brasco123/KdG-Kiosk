@@ -55,13 +55,11 @@ sleep 1
 
 # Start xbindkeys with the new configuration
 log "Starting xbindkeys with config: $XBINDKEYS_CONFIG"
-xbindkeys -f "$XBINDKEYS_CONFIG"
-
-# Verify xbindkeys is running
-if pgrep xbindkeys > /dev/null; then
+if xbindkeys -f "$XBINDKEYS_CONFIG"; then
     log "xbindkeys started successfully"
 else
-    log "WARNING: xbindkeys failed to start"
+    log "WARNING: xbindkeys failed to start, continuing without key binding"
+    exit 1
 fi
 
 # Clearing modifiers
@@ -105,4 +103,3 @@ log "Starting Kiosk Browser via proxy ${PROXY_URL} ..."
 
 BROWSER_PID=$!
 log "Browser started with PID $BROWSER_PID"
-wait $BROWSER_PID
