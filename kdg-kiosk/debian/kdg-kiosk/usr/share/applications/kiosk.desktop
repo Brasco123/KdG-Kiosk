@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Terminal=false
+Name=kdg-kiosk
+Icon=kiosk
+Exec=kdg-kiosk
+Categories=Application;System
+Comment=kiosk voor browsers
+Name[en_US]=kdg-kiosk

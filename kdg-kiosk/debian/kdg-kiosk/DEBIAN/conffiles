@@ -1,0 +1,2 @@
+/etc/squid/conf.d/squid.conf.template
+/etc/squid/whitelist.acl/whitelist.acl

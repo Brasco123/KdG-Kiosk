@@ -1,0 +1,10 @@
+Package: kdg-kiosk
+Version: 1
+Architecture: amd64
+Maintainer: olivier peeters <olivier.peeters.2@student.kdg.be>
+Installed-Size: 69
+Depends: squid, chromium, firefox, xbindkeys, python3, python3-pyqt5
+Section: misc
+Priority: optional
+Description: kdg kiosk
+    Start een Kiosk op in de gekozen web browser met gewenste url.
