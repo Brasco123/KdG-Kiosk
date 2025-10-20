@@ -4,7 +4,8 @@
 
 
 # Proxy poort (wordt dynamisch ingevuld)
-http_port ${PROXY_IP}:${PROXY_PORT}
+http_port 127.0.0.1:3128
+
 
 
 # Alleen interne clients
