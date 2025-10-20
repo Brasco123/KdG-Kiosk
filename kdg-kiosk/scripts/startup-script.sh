@@ -91,14 +91,35 @@ done
 # BROWSER STARTEN
 # ========================
 log "Starting Kiosk Browser via proxy ${PROXY_URL} ..."
-"$BROWSER" \
-  --kiosk \
-  --incognito \
-  --no-first-run \
-  --noerrdialogs \
-  --disable-infobars \
-  --proxy-server="${PROXY_URL}" \
-  --new-window "$URL" 2>&1 & 
+
+# Proxy-env vars voor Firefox
+export http_proxy="$PROXY_URL"
+export https_proxy="$PROXY_URL"
+
+if [[ "$BROWSER" == "chromium" || "$BROWSER" == "google-chrome" ]]; then
+    "$BROWSER" \
+      --kiosk \
+      --incognito \
+      --no-first-run \
+      --noerrdialogs \
+      --disable-infobars \
+      --proxy-server="${PROXY_URL}" \
+      --new-window "$URL" 2>&1 &
+
+elif [[ "$BROWSER" == "firefox" ]]; then
+    # Firefox ondersteunt andere vlaggen
+    "$BROWSER" \
+      --kiosk \
+      --private-window "$URL" \
+      --setDefaultBrowser \
+      --purgecaches \
+      --safe-mode \
+      --no-remote 2>&1 &
+
+else
+    log "WARNING: Unsupported browser '$BROWSER'. Falling back to Chromium."
+    chromium --kiosk --incognito --proxy-server="${PROXY_URL}" "$URL" 2>&1 &
+fi
 
 
 BROWSER_PID=$!
