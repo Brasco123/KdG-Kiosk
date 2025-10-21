@@ -25,6 +25,47 @@ cleanup() {
     
     log "Cleanup completed successfully."
 }
+
+readonly VERSION="1.0"
+readonly SCRIPT_NAME="kdg-kiosk"
+
+usage() {
+    cat <<EOF
+Gebruik: $SCRIPT_NAME [OPTIES]
+
+Start de KDG Kiosk-browser in beveiligde modus.
+
+Opties:
+  --help         Toon deze helptekst en sluit af.
+  --version      Toon versie-informatie en sluit af.
+
+Configuratie:
+  Dit script gebruikt instellingen uit:
+    /usr/share/kdg-kiosk/kiosk-config.sh
+
+EOF
+}
+
+# ========================
+# ARGUMENT PARSING
+# ========================
+if [[ $# -gt 0 ]]; then
+    case "$1" in
+        --help|-h)
+            usage
+            exit 0
+            ;;
+        --version|-v)
+            echo "$SCRIPT_NAME versie $VERSION"
+            exit 0
+            ;;
+        *)
+            echo "Onbekende optie: $1" >&2
+            echo "Gebruik man $SCRIPT_NAME voor hulp." >&2
+            exit 1
+            ;;
+    esac
+fi
 trap cleanup EXIT
 
 # ========================

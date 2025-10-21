@@ -22,15 +22,14 @@ if [ -f "$CONFIG_TEMPLATE" ]; then
     envsubst < "$CONFIG_TEMPLATE" > "$CONFIG_FILE"
 
     echo ">> [kdg-kiosk] Enabling and Restarting Squid service..."
-    systemctl enable squid || true
-    systemctl restart squid || true
+    deb-systemd-invoke enable squid.service || true
+    deb-systemd-invoke restart squid.service || true
 else
     echo ">> [kdg-kiosk] Warning: squid.conf.template not found at $CONFIG_TEMPLATE"
 fi
 
 echo ">> [kdg-kiosk] Squid configured successfully."
 
-exit 0
-
 #DEBHELPER#
 
+exit 0

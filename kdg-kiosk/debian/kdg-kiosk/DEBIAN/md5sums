@@ -1,9 +1,10 @@
 a7b35f52b3d5ff3898478690dc0871a3  usr/bin/kdg-kiosk
-381fb613f3a526a5fb329f6c86b4284e  usr/share/applications/kiosk.desktop
-2671058f73268ad6f3d18824c59d301d  usr/share/applications/setup-kiosk.desktop
+f79d5dd50b4fc2c2ebf0a737975b9665  usr/share/applications/kiosk.desktop
+a1f164fee42fa91bcc3994660ce15cc3  usr/share/applications/setup-kiosk.desktop
 9f7d9c9e1b6e5f10c4ebe45638e9b96f  usr/share/doc/kdg-kiosk/changelog.gz
 ca8aaea00124502d663a6e9b7362e3dc  usr/share/doc/kdg-kiosk/copyright
 03aaba095a65b435b6fe2a3a04a874b7  usr/share/kdg-kiosk/kiosk-config.sh
 ccc52d76396f3085fb07297e8e6e3c7c  usr/share/kdg-kiosk/setup_wizard.py
-3d7871b6913b69f5763e14093ee44b19  usr/share/kdg-kiosk/startup-script.sh
+a4588fb0d5ce81bf8053008ce9146c79  usr/share/kdg-kiosk/startup-script.sh
+81d09e0684272e7117823ab4533beed1  usr/share/man/man1/kdg-kiosk.1.gz
 f26c45ed03631ec6f7e0ca70a5c64285  usr/share/pixmaps/kiosk.png

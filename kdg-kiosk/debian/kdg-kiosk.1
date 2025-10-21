@@ -1,0 +1,125 @@
+.TH KDG-KIOSK 1 "Oktober 2025" "kdg-kiosk 1.0" "Gebruikerscommando's"
+.SH NAAM
+kdg-kiosk \- start of configureer de KdG Kiosk-omgeving
+
+.SH SAMENVATTING
+.B kdg-kiosk
+[\fI--setup\fR]
+.br
+.B setup_wizard.py
+
+.SH BESCHRIJVING
+Het programma
+.B kdg-kiosk
+biedt een beveiligde kiosk-omgeving voor het weergeven van een webinterface
+op systemen beheerd door Karel de Grote Hogeschool.
+
+Het systeem bestaat uit twee hoofdonderdelen:
+
+.TP
+.B 1. Configuratiewizard
+(\fBsetup_wizard.py\fR)
+Een grafische wizard gebouwd met PyQt5 die de gebruiker stap voor stap begeleidt
+bij het instellen van de kiosk-omgeving.  
+De wizard configureert:
+.RS
+.IP \(bu 2
+Standaardbrowser (Firefox of Chromium)
+.IP \(bu 2
+Startpagina (URL)
+.IP \(bu 2
+Proxy-instellingen (IP-adres en poort)
+.IP \(bu 2
+Toetsenbordindeling bij het verlaten van kioskmodus
+.IP \(bu 2
+Aangepaste sneltoets om kioskmodus te verlaten
+.IP \(bu 2
+Whitelist van toegestane domeinen voor de Squid-proxy
+.RE
+
+De configuratie wordt opgeslagen in:
+.RS
+.IP \(bu 2
+\fB/usr/share/kdg-kiosk/kiosk-config.sh\fR
+.IP \(bu 2
+\fB/etc/squid/whitelist.acl\fR
+.RE
+
+.TP
+.B 2. Kiosk-launcher
+(\fB/usr/bin/kdg-kiosk\fR)
+Een Bash-script dat de geconfigureerde browser opstart in kioskmodus,
+het toetsenbord vergrendelt, de proxy-instellingen toepast en de whitelist handhaaft.
+Daarnaast wordt \fBxbindkeys\fR gestart om de aangepaste exit-sneltoets te activeren.
+
+Bij het starten voert het script de volgende stappen uit:
+.RS
+.IP \(bu 2
+Laadt configuratie uit \fBkiosk-config.sh\fR
+.IP \(bu 2
+Past toetsenbordbeperkingen toe via \fBxmodmap\fR
+.IP \(bu 2
+Configureert \fBxbindkeys\fR met de ingestelde sneltoets
+.IP \(bu 2
+Start de browser in volledig scherm (kioskmodus)
+.IP \(bu 2
+Voert opschoning uit en herstelt toetsenbordinstellingen bij afsluiten
+.RE
+
+.SH OPTIES
+.TP
+.B --help
+Toont een korte helptekst en stopt.
+.TP
+.B --version
+Toont versie-informatie.
+
+.SH BESTANDEN
+.TP
+\fB/usr/share/kdg-kiosk/kiosk-config.sh\fR
+Hoofdconfiguratiebestand dat door de wizard wordt aangemaakt.
+.TP
+\fB/etc/squid/conf.d/squid.conf.template\fR
+Sjabloonbestand voor Squid-proxyconfiguratie.
+.TP
+\fB/etc/squid/whitelist.acl\fR
+Lijst met toegestane domeinen voor de kiosk-proxy.
+.TP
+\fB/usr/share/pixmaps/kiosk.png\fR
+Pictogram dat wordt gebruikt door de wizard en desktop-snelkoppelingen.
+.TP
+\fB/usr/share/applications/kiosk.desktop\fR
+Desktopbestand om de kiosk te starten.
+.TP
+\fB/usr/share/applications/setup-kiosk.desktop\fR
+Desktopbestand om de configuratiewizard te openen.
+
+.SH OMGEVINGSVARIABELEN
+De volgende variabelen worden gelezen uit het configuratiebestand:
+.RS
+.IP \(bu 2
+\fBBROWSER\fR – De browser die moet worden gebruikt.
+.IP \(bu 2
+\fBURL\fR – De startpagina.
+.IP \(bu 2
+\fBPROXY_IP\fR, \fBPROXY_PORT\fR, \fBPROXY_URL\fR – Proxy-instellingen.
+.IP \(bu 2
+\fBCUSTOM_KEYBIND\fR – Sneltoets om de kioskmodus te verlaten.
+.IP \(bu 2
+\fBKEYMAP_LANG\fR – Toetsenbordindeling die wordt hersteld na afsluiten.
+.RE
+
+.SH LOGGING
+Logbestanden worden opgeslagen in:
+.RS
+\fB/tmp/kiosk.log\fR
+.RE
+
+.SH AUTEUR
+Geschreven door Chistoph, Olivier en Tibo.
+
+.SH ZIE OOK
+.BR bash (1),
+.BR xmodmap (1),
+.BR xbindkeys (1),
+.BR squid (8)
