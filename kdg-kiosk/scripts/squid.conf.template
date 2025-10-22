@@ -12,7 +12,7 @@ http_port 127.0.0.1:3128
 acl localnet src 127.0.0.1/32
 
 # Whitelist van toegestane websites
-acl allowed_websites dstdomain "/usr/share/kdg-kiosk/squid/whitelist.acl"
+acl allowed_websites dstdomain "etc/squid/whitelist.acl/whitelist.acl"
 
 # Alleen veilige poorten
 acl SSL_ports port 443
