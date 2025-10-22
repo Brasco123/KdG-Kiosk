@@ -333,21 +333,42 @@ class CLIInstaller:
             print("\n🚀 Launching setup wizard...")
             print("   The installer will now close.\n")
             try:
-                # Launch as completely independent process
-                subprocess.Popen(
-                    ["python3", "/usr/share/kdg-kiosk/setup_wizard.py"],
-                    start_new_session=True,
-                    stdin=subprocess.DEVNULL,
-                    stdout=subprocess.DEVNULL,
-                    stderr=subprocess.DEVNULL,
-                )
+                # Get the actual user (not root) if running with sudo
+                actual_user = os.environ.get("SUDO_USER") or os.environ.get("USER")
+
+                if actual_user and actual_user != "root":
+                    # Launch as the actual user, not root
+                    subprocess.Popen(
+                        [
+                            "sudo",
+                            "-u",
+                            actual_user,
+                            "python3",
+                            "/usr/share/kdg-kiosk/setup_wizard.py",
+                        ],
+                        start_new_session=True,
+                        stdin=subprocess.DEVNULL,
+                        stdout=subprocess.DEVNULL,
+                        stderr=subprocess.DEVNULL,
+                    )
+                else:
+                    # Not running via sudo, launch normally
+                    subprocess.Popen(
+                        ["python3", "/usr/share/kdg-kiosk/setup_wizard.py"],
+                        start_new_session=True,
+                        stdin=subprocess.DEVNULL,
+                        stdout=subprocess.DEVNULL,
+                        stderr=subprocess.DEVNULL,
+                    )
                 # Give wizard a moment to start before we exit
                 import time
 
                 time.sleep(0.5)
             except Exception as e:
                 print(f"⚠️  Could not launch setup wizard: {e}")
-                print("   You can run it manually with: kdg-kiosk-setup")
+                print(
+                    "   You can run it manually with: python3 /usr/share/kdg-kiosk/setup_wizard.py"
+                )
                 return False
         else:
             print(
@@ -590,14 +611,33 @@ if GUI_AVAILABLE:
         def launch_wizard(self):
             """Launch the setup wizard as independent process"""
             try:
-                # Launch as completely independent process
-                subprocess.Popen(
-                    ["python3", "/usr/share/kdg-kiosk/setup_wizard.py"],
-                    start_new_session=True,
-                    stdin=subprocess.DEVNULL,
-                    stdout=subprocess.DEVNULL,
-                    stderr=subprocess.DEVNULL,
-                )
+                # Get the actual user (not root) if running with sudo
+                actual_user = os.environ.get("SUDO_USER") or os.environ.get("USER")
+
+                if actual_user and actual_user != "root":
+                    # Launch as the actual user, not root
+                    subprocess.Popen(
+                        [
+                            "sudo",
+                            "-u",
+                            actual_user,
+                            "python3",
+                            "/usr/share/kdg-kiosk/setup_wizard.py",
+                        ],
+                        start_new_session=True,
+                        stdin=subprocess.DEVNULL,
+                        stdout=subprocess.DEVNULL,
+                        stderr=subprocess.DEVNULL,
+                    )
+                else:
+                    # Not running via sudo, launch normally
+                    subprocess.Popen(
+                        ["python3", "/usr/share/kdg-kiosk/setup_wizard.py"],
+                        start_new_session=True,
+                        stdin=subprocess.DEVNULL,
+                        stdout=subprocess.DEVNULL,
+                        stderr=subprocess.DEVNULL,
+                    )
                 # Give wizard a moment to start
                 import time
 
