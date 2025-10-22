@@ -23,3 +23,6 @@ tmp/
 *.bak
 .DS_Store
 Thumbs.db
+
+# Website (separate repository)
+website/
