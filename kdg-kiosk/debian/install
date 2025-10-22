@@ -8,4 +8,5 @@ scripts/setup_wizard.py usr/share/kdg-kiosk/
 setup-kiosk.desktop usr/share/applications/
 kiosk.desktop usr/share/applications/
 scripts/kdg-kiosk usr/bin
+scripts/kdg-kiosk-setup usr/bin
 kiosk.png usr/share/pixmaps

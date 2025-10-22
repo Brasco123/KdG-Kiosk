@@ -1,0 +1,5 @@
+#!/bin/bash
+# KdG Kiosk Setup Wizard Launcher
+
+exec python3 /usr/share/kdg-kiosk/setup_wizard.py "$@"
+

@@ -330,12 +330,22 @@ class CLIInstaller:
         print("=" * 60)
         response = input("\nWould you like to run the setup wizard now? [Y/n]: ")
         if response.lower() != "n":
-            print("\n🚀 Launching setup wizard...\n")
+            print("\n🚀 Launching setup wizard...")
+            print("   The installer will close and the wizard will open.\n")
             try:
-                subprocess.Popen(["python3", "/usr/share/kdg-kiosk/setup_wizard.py"])
+                # Launch as completely independent process
+                subprocess.Popen(
+                    ["kdg-kiosk-setup"],
+                    start_new_session=True,
+                    stdin=subprocess.DEVNULL,
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                )
             except Exception as e:
                 print(f"⚠️  Could not launch setup wizard: {e}")
                 print("   You can run it manually with: kdg-kiosk-setup")
+        else:
+            print("\n💡 Run 'kdg-kiosk-setup' later to configure your kiosk.\n")
 
         return True
 
@@ -571,9 +581,23 @@ if GUI_AVAILABLE:
             self.cleanup()
 
         def launch_wizard(self):
-            """Launch the setup wizard"""
+            """Launch the setup wizard as independent process"""
             try:
-                subprocess.Popen(["python3", "/usr/share/kdg-kiosk/setup_wizard.py"])
+                # Launch as completely independent process
+                subprocess.Popen(
+                    ["kdg-kiosk-setup"],
+                    start_new_session=True,
+                    stdin=subprocess.DEVNULL,
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                )
+                QMessageBox.information(
+                    self,
+                    "Setup Wizard",
+                    "Installation complete!\n\n"
+                    "The setup wizard is now opening.\n"
+                    "The installer will close.",
+                )
                 self.close()
             except Exception as e:
                 QMessageBox.warning(
