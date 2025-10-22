@@ -33,8 +33,7 @@ acl blocked_downloads urlpath_regex -i \
 
 
 # Aangepaste foutpagina's
-# Custom error page will be placed in /usr/share/squid/errors/en/
-# Don't set error_directory - use Squid's default
+error_directory /usr/share/squid/errors/nl
 deny_info ERR_ACCESS_DENIED blocked_downloads
 deny_info ERR_ACCESS_DENIED !allowed_websites
 

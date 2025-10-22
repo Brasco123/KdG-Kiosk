@@ -21,7 +21,6 @@ from PyQt5.QtWidgets import (
     QHBoxLayout,
     QListWidget,
     QPushButton,
-    QProgressDialog,
 )
 
 CONFIG_FILE = "/usr/share/kdg-kiosk/kiosk-config.sh"
@@ -396,22 +395,14 @@ export CUSTOM_KEYBIND="{custom_keybind}"
             with open(config_tmp, "w") as f:
                 f.write(content)
 
-            # Show progress dialog
-            progress = QProgressDialog(
-                "Saving configuration and restarting Squid proxy...\n\n"
-                "This may take a few seconds.",
-                None,  # No cancel button
-                0,
-                0,  # Indeterminate progress
+            # Show brief explanation
+            QMessageBox.information(
                 self,
+                "Applying Configuration",
+                "You will be asked for your password.\n\n"
+                "After entering it, the wizard may freeze briefly while\n"
+                "restarting the Squid proxy. This is normal.",
             )
-            progress.setWindowTitle("Applying Configuration")
-            progress.setWindowModality(Qt.WindowModal)
-            progress.setMinimumDuration(0)  # Show immediately
-            progress.setValue(0)
-
-            # Process events to show the dialog
-            QApplication.processEvents()
 
             # Run the configuration save command
             subprocess.run(
@@ -425,9 +416,6 @@ export CUSTOM_KEYBIND="{custom_keybind}"
                 ],
                 check=True,
             )
-
-            # Close progress dialog
-            progress.close()
 
             QMessageBox.information(
                 self,
@@ -443,15 +431,30 @@ export CUSTOM_KEYBIND="{custom_keybind}"
                 QMessageBox.Yes | QMessageBox.No,
             )
             if reply == QMessageBox.Yes:
-                env = os.environ.copy()
-                subprocess.Popen(
-                    ["/usr/bin/kdg-kiosk"],
-                    env=env,
-                    start_new_session=True,
-                    stdout=subprocess.DEVNULL,
-                    stderr=subprocess.DEVNULL,
-                )
+                # Close the wizard first
                 self.close()
+
+                # Start kiosk with proper environment
+                env = os.environ.copy()
+                # Ensure DISPLAY is set
+                if "DISPLAY" not in env:
+                    env["DISPLAY"] = ":0"
+
+                # Start kiosk - don't redirect output so we can debug issues
+                try:
+                    subprocess.Popen(
+                        ["/usr/bin/kdg-kiosk"],
+                        env=env,
+                        start_new_session=False,  # Keep in same session for DISPLAY
+                    )
+                except Exception as e:
+                    QMessageBox.critical(
+                        None,
+                        "Error",
+                        f"Failed to start kiosk: {e}\n\n"
+                        "You can start it manually with: kdg-kiosk",
+                    )
+
                 sys.exit(0)
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Could not save configuration:\n{e}")
