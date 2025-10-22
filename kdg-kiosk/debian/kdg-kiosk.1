@@ -4,9 +4,8 @@ kdg-kiosk \- start of configureer de KdG Kiosk-omgeving
 
 .SH SAMENVATTING
 .B kdg-kiosk
-[\fI--setup\fR]
 .br
-.B setup_wizard.py
+.B kdg-setup-wizard
 
 .SH BESCHRIJVING
 Het programma
@@ -42,7 +41,7 @@ De configuratie wordt opgeslagen in:
 .IP \(bu 2
 \fB/usr/share/kdg-kiosk/kiosk-config.sh\fR
 .IP \(bu 2
-\fB/etc/squid/whitelist.acl\fR
+\fB/etc/squid/whitelist.acl/whitelist.acl\fR
 .RE
 
 .TP
@@ -82,7 +81,7 @@ Hoofdconfiguratiebestand dat door de wizard wordt aangemaakt.
 \fB/etc/squid/conf.d/squid.conf.template\fR
 Sjabloonbestand voor Squid-proxyconfiguratie.
 .TP
-\fB/etc/squid/whitelist.acl\fR
+\fB/etc/squid/whitelist.acl/whitelist.acl\fR
 Lijst met toegestane domeinen voor de kiosk-proxy.
 .TP
 \fB/usr/share/pixmaps/kiosk.png\fR
