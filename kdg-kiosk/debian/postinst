@@ -16,8 +16,6 @@ echo ">> [kdg-kiosk] Generating initial Squid configuration..."
 if [ -f "$CONFIG_TEMPLATE" ]; then
     export PROXY_IP="127.0.0.1"
     export PROXY_PORT="3128"
-    export BLOCKED_PAGE_URL="http://127.0.0.1/blocked.html"
-    export DENIED_PAGE_URL="http://127.0.0.1/denied.html"
 
     envsubst < "$CONFIG_TEMPLATE" > "$CONFIG_FILE"
 

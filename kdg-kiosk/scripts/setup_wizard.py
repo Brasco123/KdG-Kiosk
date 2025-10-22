@@ -24,7 +24,7 @@ from PyQt5.QtWidgets import (
 )
 
 CONFIG_FILE = "/usr/share/kdg-kiosk/kiosk-config.sh"
-WHITELIST_FILE = "/etc/squid/whitelist.acl/whitelist.acl"
+WHITELIST_FILE = "/etc/squid/whitelist.acl"
 LOGO_PATH = "/usr/share/pixmaps/kiosk.png"
 DISALLOWED_KEYS = [
     Qt.Key_Escape,

@@ -2,8 +2,7 @@
 # Squid Config Template
 # ========================
 
-
-# Proxy poort (wordt dynamisch ingevuld)
+# Proxy poort
 http_port 127.0.0.1:3128
 
 
@@ -12,7 +11,7 @@ http_port 127.0.0.1:3128
 acl localnet src 127.0.0.1/32
 
 # Whitelist van toegestane websites
-acl allowed_websites dstdomain "/usr/share/kdg-kiosk/squid/whitelist.acl"
+acl allowed_websites dstdomain "/etc/squid/whitelist.acl"
 
 # Alleen veilige poorten
 acl SSL_ports port 443
@@ -25,11 +24,8 @@ acl blocked_downloads urlpath_regex -i \
     \.mp3$ \.mp4$ \.avi$ \.mov$ \
     \.pdf$ \.doc$ \.docx$ \.xls$ \.xlsx$ \.ppt$ \.pptx$
 
-# Aangepaste foutpagina’s (invullen via kiosk-config.sh)
-deny_info ${BLOCKED_PAGE_URL} blocked_downloads
-deny_info ${DENIED_PAGE_URL} !allowed_websites
-
-  # Toegangsregels
+# Toegangsregels
+http_access deny CONNECT !SSL_ports
 http_access deny blocked_downloads
 http_access allow localnet allowed_websites
 http_access deny !allowed_websites

@@ -144,6 +144,11 @@ if [[ "$BROWSER" == "chromium" || "$BROWSER" == "google-chrome" ]]; then
       --no-first-run \
       --noerrdialogs \
       --disable-infobars \
+      --disable-gpu \
+      --no-sandbox \
+      --disable-dev-shm-usage \
+      --disable-software-rasterizer \
+      --disable-pdf-extension \
       --proxy-server="${PROXY_URL}" \
       --new-window "$URL" 2>&1 &
 
@@ -151,15 +156,13 @@ elif [[ "$BROWSER" == "firefox" ]]; then
     # Firefox ondersteunt andere vlaggen
     "$BROWSER" \
       --kiosk \
-      --private-window "$URL" \
-      --setDefaultBrowser \
-      --purgecaches \
+      "$URL" \
       --safe-mode \
       --no-remote 2>&1 &
 
 else
     log "WARNING: Unsupported browser '$BROWSER'. Falling back to Chromium."
-    chromium --kiosk --incognito --proxy-server="${PROXY_URL}" "$URL" 2>&1 &
+    chromium --kiosk --incognito --disable-gpu --no-sandbox --disable-dev-shm-usage --disable-software-rasterizer --disable-pdf-extension --proxy-server="${PROXY_URL}" "$URL" 2>&1 &
 fi
 
 

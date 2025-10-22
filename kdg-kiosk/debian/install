@@ -1,7 +1,7 @@
 scripts/kiosk-config.sh usr/share/kdg-kiosk/
 scripts/startup-script.sh usr/share/kdg-kiosk/
 scripts/squid.conf.template etc/squid/conf.d
-scripts/squid/whitelist.acl etc/squid/whitelist.acl
+scripts/squid/whitelist.acl etc/squid/
 scripts/setup_wizard.py usr/share/kdg-kiosk/
 setup-kiosk.desktop usr/share/applications/
 kiosk.desktop usr/share/applications/
