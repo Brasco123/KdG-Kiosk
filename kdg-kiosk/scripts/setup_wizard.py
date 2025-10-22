@@ -34,6 +34,7 @@ DISALLOWED_KEYS = [
     Qt.Key_Control,
 ]
 
+
 # ---------- Config Loader ----------
 def load_existing_config():
     config = {}
@@ -50,6 +51,7 @@ def load_existing_config():
             print(f"Warning: could not parse config: {e}")
     return config
 
+
 # ---------- Whitelist Helpers ----------
 def load_whitelist():
     if os.path.exists(WHITELIST_FILE):
@@ -57,11 +59,13 @@ def load_whitelist():
             return [line.strip() for line in f if line.strip()]
     return []
 
+
 def save_whitelist_tmp(domains):
     tmp_file = tempfile.mktemp()
     with open(tmp_file, "w") as f:
         f.write("\n".join(domains) + "\n")
     return tmp_file
+
 
 # ---------- Header ----------
 def create_header(title_text):
@@ -76,6 +80,7 @@ def create_header(title_text):
     layout.addWidget(title)
     layout.addStretch(1)
     return layout
+
 
 # ---------- Wizard Pages ----------
 class WelcomePage(QWizardPage):
@@ -93,6 +98,7 @@ class WelcomePage(QWizardPage):
             )
         )
         self.setLayout(layout)
+
 
 class BrowserPage(QWizardPage):
     def __init__(self, config):
@@ -121,6 +127,7 @@ class BrowserPage(QWizardPage):
             return False
         return True
 
+
 class ProxyPage(QWizardPage):
     def __init__(self, config):
         super().__init__()
@@ -135,6 +142,7 @@ class ProxyPage(QWizardPage):
         layout.addLayout(form)
         layout.addStretch(1)
         self.setLayout(layout)
+
 
 class KeyboardPage(QWizardPage):
     def __init__(self, config):
@@ -153,6 +161,7 @@ class KeyboardPage(QWizardPage):
         layout.addLayout(form)
         layout.addStretch(1)
         self.setLayout(layout)
+
 
 class KeybindPage(QWizardPage):
     def __init__(self, config):
@@ -209,6 +218,7 @@ class KeybindPage(QWizardPage):
             return True
         return super().eventFilter(obj, event)
 
+
 class WhitelistPage(QWizardPage):
     def __init__(self):
         super().__init__()
@@ -234,7 +244,9 @@ class WhitelistPage(QWizardPage):
 
     def add_domain(self):
         domain = self.add_input.text().strip()
-        existing = [self.list_widget.item(i).text() for i in range(self.list_widget.count())]
+        existing = [
+            self.list_widget.item(i).text() for i in range(self.list_widget.count())
+        ]
         if domain and domain not in existing:
             self.list_widget.addItem(domain)
             self.add_input.clear()
@@ -244,7 +256,10 @@ class WhitelistPage(QWizardPage):
             self.list_widget.takeItem(self.list_widget.row(item))
 
     def get_domains(self):
-        return [self.list_widget.item(i).text() for i in range(self.list_widget.count())]
+        return [
+            self.list_widget.item(i).text() for i in range(self.list_widget.count())
+        ]
+
 
 class SummaryPage(QWizardPage):
     def __init__(self, wizard):
@@ -269,7 +284,9 @@ class SummaryPage(QWizardPage):
             for i in range(w.whitelist_page.list_widget.count())
         ]
         if whitelist_domains:
-            whitelist_html = "<ul>" + "".join(f"<li>{d}</li>" for d in whitelist_domains) + "</ul>"
+            whitelist_html = (
+                "<ul>" + "".join(f"<li>{d}</li>" for d in whitelist_domains) + "</ul>"
+            )
         else:
             whitelist_html = "<i>(none)</i>"
 
@@ -287,6 +304,7 @@ class SummaryPage(QWizardPage):
     def validatePage(self):
         self.wizard_ref.save_config()
         return True
+
 
 # ---------- Main Wizard ----------
 class KioskWizard(QWizard):
@@ -362,13 +380,20 @@ export CUSTOM_KEYBIND="{custom_keybind}"
             with open(config_tmp, "w") as f:
                 f.write(content)
 
-            subprocess.run([
-                "pkexec", "bash", "-c",
-                f"mv {config_tmp} {CONFIG_FILE} && chmod 644 {CONFIG_FILE} "
-                f"&& mv {whitelist_tmp} {WHITELIST_FILE} && chmod 644 {WHITELIST_FILE}"
-            ], check=True)
+            subprocess.run(
+                [
+                    "pkexec",
+                    "bash",
+                    "-c",
+                    f"mv {config_tmp} {CONFIG_FILE} && chmod 644 {CONFIG_FILE} "
+                    f"&& mv {whitelist_tmp} {WHITELIST_FILE} && chmod 644 {WHITELIST_FILE}",
+                ],
+                check=True,
+            )
 
-            QMessageBox.information(self, "Success", "Configuration saved successfully!")
+            QMessageBox.information(
+                self, "Success", "Configuration saved successfully!"
+            )
 
             reply = QMessageBox.question(
                 self,
@@ -389,6 +414,7 @@ export CUSTOM_KEYBIND="{custom_keybind}"
                 sys.exit(0)
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Could not save configuration:\n{e}")
+
 
 # ---------- Run ----------
 if __name__ == "__main__":
