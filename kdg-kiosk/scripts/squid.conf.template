@@ -2,7 +2,8 @@
 # Squid Config Template
 # ========================
 
-# Proxy poort
+
+# Proxy poort (wordt dynamisch ingevuld)
 http_port 127.0.0.1:3128
 
 
@@ -18,15 +19,33 @@ acl SSL_ports port 443
 acl Safe_ports port 80
 acl Safe_ports port 443
 
+# Blokkeer ook responses met downloadbare MIME-types
+acl blocked_mime rep_mime_type -i ^application/(pdf|zip|x-zip|x-msdownload|msword|vnd\.ms|octet-stream)$
+http_reply_access deny blocked_mime
+
 # Downloadblokkering
 acl blocked_downloads urlpath_regex -i \
     \.exe$ \.zip$ \.tar$ \.gz$ \.rar$ \.7z$ \.iso$ \
     \.mp3$ \.mp4$ \.avi$ \.mov$ \
-    \.pdf$ \.doc$ \.docx$ \.xls$ \.xlsx$ \.ppt$ \.pptx$
+    \.pdf$ \.doc$ \.docx$ \.xls$ \.xlsx$ \.ppt$ \.pptx$ \
+    \.csv$ \.txt$ \.rtf$ \.odt$ \.ods$ \.odp$ \
+    \.apk$ \.bin$ \.msi$ \.dmg$
+
+
+# Aangepaste foutpagina's
+# Custom error page will be placed in /usr/share/squid/errors/en/
+# Don't set error_directory - use Squid's default
+deny_info ERR_ACCESS_DENIED blocked_downloads
+deny_info ERR_ACCESS_DENIED !allowed_websites
+
 
 # Toegangsregels
-http_access deny CONNECT !SSL_ports
 http_access deny blocked_downloads
+
+# Toelaten van HTTPS-tunnels (CONNECT) naar whitelisted sites
+acl CONNECT method CONNECT
+http_access allow CONNECT allowed_websites
+
 http_access allow localnet allowed_websites
 http_access deny !allowed_websites
 http_access deny !Safe_ports

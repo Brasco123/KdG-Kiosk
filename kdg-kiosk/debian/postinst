@@ -5,6 +5,14 @@ case "$1" in
     configure)
         chmod 755 /usr/share/kdg-kiosk/kiosk-config.sh || true
         chmod 755 /usr/share/kdg-kiosk/startup-script.sh || true
+        
+        # Ensure custom error pages are readable in both languages
+        if [ -f "/usr/share/squid/errors/en/ERR_ACCESS_DENIED" ]; then
+            chmod 644 /usr/share/squid/errors/en/ERR_ACCESS_DENIED || true
+        fi
+        if [ -f "/usr/share/squid/errors/nl/ERR_ACCESS_DENIED" ]; then
+            chmod 644 /usr/share/squid/errors/nl/ERR_ACCESS_DENIED || true
+        fi
     ;;
 esac
 

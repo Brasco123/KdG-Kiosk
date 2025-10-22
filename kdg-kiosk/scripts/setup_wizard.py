@@ -21,6 +21,7 @@ from PyQt5.QtWidgets import (
     QHBoxLayout,
     QListWidget,
     QPushButton,
+    QProgressDialog,
 )
 
 CONFIG_FILE = "/usr/share/kdg-kiosk/kiosk-config.sh"
@@ -344,8 +345,23 @@ class KioskWizard(QWizard):
         # Add homepage domain automatically if not present
         domains = self.whitelist_page.get_domains()
         parsed = urlparse(url)
-        if parsed.hostname and parsed.hostname not in domains:
-            domains.append(parsed.hostname)
+        if parsed.hostname:
+            # Extract base domain and add with leading dot for subdomain matching
+            hostname = parsed.hostname
+            # Get base domain (e.g., google.com from www.google.com)
+            parts = hostname.split(".")
+            if len(parts) >= 2:
+                base_domain = ".".join(parts[-2:])  # last two parts
+                domain_to_add = f".{base_domain}"
+            else:
+                domain_to_add = f".{hostname}"
+
+            # Check if domain is already in list (with or without leading dot)
+            domain_exists = any(
+                d == domain_to_add or d == base_domain or d == hostname for d in domains
+            )
+            if not domain_exists:
+                domains.append(domain_to_add)
 
         whitelist_tmp = save_whitelist_tmp(domains)
         config_tmp = tempfile.mktemp(suffix=".sh")
@@ -380,19 +396,44 @@ export CUSTOM_KEYBIND="{custom_keybind}"
             with open(config_tmp, "w") as f:
                 f.write(content)
 
+            # Show progress dialog
+            progress = QProgressDialog(
+                "Saving configuration and restarting Squid proxy...\n\n"
+                "This may take a few seconds.",
+                None,  # No cancel button
+                0,
+                0,  # Indeterminate progress
+                self,
+            )
+            progress.setWindowTitle("Applying Configuration")
+            progress.setWindowModality(Qt.WindowModal)
+            progress.setMinimumDuration(0)  # Show immediately
+            progress.setValue(0)
+
+            # Process events to show the dialog
+            QApplication.processEvents()
+
+            # Run the configuration save command
             subprocess.run(
                 [
                     "pkexec",
                     "bash",
                     "-c",
                     f"mv {config_tmp} {CONFIG_FILE} && chmod 644 {CONFIG_FILE} "
-                    f"&& mv {whitelist_tmp} {WHITELIST_FILE} && chmod 644 {WHITELIST_FILE}",
+                    f"&& mv {whitelist_tmp} {WHITELIST_FILE} && chmod 644 {WHITELIST_FILE} "
+                    f"&& systemctl restart squid.service",
                 ],
                 check=True,
             )
 
+            # Close progress dialog
+            progress.close()
+
             QMessageBox.information(
-                self, "Success", "Configuration saved successfully!"
+                self,
+                "Success",
+                "Configuration saved successfully!\n\n"
+                "Squid proxy has been restarted with the new settings.",
             )
 
             reply = QMessageBox.question(
