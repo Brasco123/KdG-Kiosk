@@ -431,31 +431,41 @@ export CUSTOM_KEYBIND="{custom_keybind}"
                 QMessageBox.Yes | QMessageBox.No,
             )
             if reply == QMessageBox.Yes:
-                # Close the wizard first
-                self.close()
-
                 # Start kiosk with proper environment
                 env = os.environ.copy()
                 # Ensure DISPLAY is set
                 if "DISPLAY" not in env:
                     env["DISPLAY"] = ":0"
 
-                # Start kiosk - don't redirect output so we can debug issues
+                # Start kiosk as a fully detached process
                 try:
+                    # Use setsid to create new session and detach from parent
                     subprocess.Popen(
                         ["/usr/bin/kdg-kiosk"],
                         env=env,
-                        start_new_session=False,  # Keep in same session for DISPLAY
+                        stdout=subprocess.DEVNULL,
+                        stderr=subprocess.DEVNULL,
+                        stdin=subprocess.DEVNULL,
+                        start_new_session=True,  # Fully detach
                     )
+                    # Give it a moment to start
+                    import time
+
+                    time.sleep(1)
                 except Exception as e:
                     QMessageBox.critical(
-                        None,
+                        self,
                         "Error",
                         f"Failed to start kiosk: {e}\n\n"
                         "You can start it manually with: kdg-kiosk",
                     )
+                    return
 
-                sys.exit(0)
+                # Close the wizard
+                self.close()
+            else:
+                # User declined, just close
+                self.close()
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Could not save configuration:\n{e}")
 

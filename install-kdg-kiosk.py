@@ -331,21 +331,28 @@ class CLIInstaller:
         response = input("\nWould you like to run the setup wizard now? [Y/n]: ")
         if response.lower() != "n":
             print("\n🚀 Launching setup wizard...")
-            print("   The installer will close and the wizard will open.\n")
+            print("   The installer will now close.\n")
             try:
                 # Launch as completely independent process
                 subprocess.Popen(
-                    ["kdg-kiosk-setup"],
+                    ["python3", "/usr/share/kdg-kiosk/setup_wizard.py"],
                     start_new_session=True,
                     stdin=subprocess.DEVNULL,
                     stdout=subprocess.DEVNULL,
                     stderr=subprocess.DEVNULL,
                 )
+                # Give wizard a moment to start before we exit
+                import time
+
+                time.sleep(0.5)
             except Exception as e:
                 print(f"⚠️  Could not launch setup wizard: {e}")
                 print("   You can run it manually with: kdg-kiosk-setup")
+                return False
         else:
-            print("\n💡 Run 'kdg-kiosk-setup' later to configure your kiosk.\n")
+            print(
+                "\n💡 Run 'python3 /usr/share/kdg-kiosk/setup_wizard.py' later to configure your kiosk.\n"
+            )
 
         return True
 
@@ -585,26 +592,26 @@ if GUI_AVAILABLE:
             try:
                 # Launch as completely independent process
                 subprocess.Popen(
-                    ["kdg-kiosk-setup"],
+                    ["python3", "/usr/share/kdg-kiosk/setup_wizard.py"],
                     start_new_session=True,
                     stdin=subprocess.DEVNULL,
                     stdout=subprocess.DEVNULL,
                     stderr=subprocess.DEVNULL,
                 )
-                QMessageBox.information(
-                    self,
-                    "Setup Wizard",
-                    "Installation complete!\n\n"
-                    "The setup wizard is now opening.\n"
-                    "The installer will close.",
-                )
+                # Give wizard a moment to start
+                import time
+
+                time.sleep(0.5)
+
+                # Close installer - wizard is now running independently
                 self.close()
+                QApplication.quit()
             except Exception as e:
                 QMessageBox.warning(
                     self,
                     "Error",
                     f"Could not launch setup wizard: {e}\n\n"
-                    "You can run it manually with: kdg-kiosk-setup",
+                    "You can run it manually with: python3 /usr/share/kdg-kiosk/setup_wizard.py",
                 )
 
         def cleanup(self):
