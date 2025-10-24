@@ -11,6 +11,20 @@ log() {
     echo "[$ts] $*" | tee -a "$LOGFILE"
 }
 
+# Early logging - ensure log directory exists
+mkdir -p "$(dirname "$LOGFILE")"
+touch "$LOGFILE" 2>/dev/null || {
+    LOGFILE="/tmp/kiosk-fallback.log"
+    touch "$LOGFILE"
+}
+
+log "=== KdG Kiosk Starting ==="
+log "DISPLAY=$DISPLAY"
+log "BROWSER=$BROWSER"
+log "URL=$URL"
+
+RESET_COMMAND="pkill -f $BROWSER"
+
 cleanup() {
     log "Starting cleanup..."
     
@@ -69,10 +83,34 @@ fi
 trap cleanup EXIT
 
 # ========================
+# BROWSER CHECK
+# ========================
+# Check if browser exists
+if ! command -v "$BROWSER" &> /dev/null; then
+    log "ERROR: Browser '$BROWSER' not found in PATH"
+    log "Available browsers:"
+    command -v chromium &> /dev/null && log "  - chromium"
+    command -v firefox &> /dev/null && log "  - firefox"
+    command -v google-chrome &> /dev/null && log "  - google-chrome"
+    
+    # Try to find an alternative
+    if command -v chromium &> /dev/null; then
+        log "Falling back to chromium"
+        BROWSER="chromium"
+    elif command -v firefox &> /dev/null; then
+        log "Falling back to firefox"
+        BROWSER="firefox"
+    else
+        log "ERROR: No supported browser found. Please install chromium or firefox."
+        exit 1
+    fi
+fi
+
+log "Using browser: $BROWSER"
+
+# ========================
 # KEYBOARD LOCKDOWN
 # ========================
-touch "$LOGFILE"
-
 # Default keymap opslaan
 if [ ! -f "$DEFAULT_KEYMAP_FILE" ]; then
     log "Saving default keymap to $DEFAULT_KEYMAP_FILE..."
@@ -137,7 +175,13 @@ log "Starting Kiosk Browser via proxy ${PROXY_URL} ..."
 export http_proxy="$PROXY_URL"
 export https_proxy="$PROXY_URL"
 
+# Kill any existing browser instances to prevent conflicts
+log "Checking for existing browser instances..."
+pkill -f "$BROWSER" 2>/dev/null || true
+sleep 1
+
 if [[ "$BROWSER" == "chromium" || "$BROWSER" == "google-chrome" ]]; then
+    log "Launching Chromium/Chrome in kiosk mode..."
     "$BROWSER" \
       --kiosk \
       --incognito \
@@ -150,9 +194,11 @@ if [[ "$BROWSER" == "chromium" || "$BROWSER" == "google-chrome" ]]; then
       --disable-software-rasterizer \
       --disable-pdf-extension \
       --proxy-server="${PROXY_URL}" \
-      --new-window "$URL" 2>&1 &
+      --new-window \
+      "$URL" >> "$LOGFILE" 2>&1 &
 
 elif [[ "$BROWSER" == "firefox" ]]; then
+    log "Launching Firefox in kiosk mode..."
     # Firefox ondersteunt andere vlaggen
     "$BROWSER" \
       --kiosk \
@@ -162,9 +208,17 @@ elif [[ "$BROWSER" == "firefox" ]]; then
 
 else
     log "WARNING: Unsupported browser '$BROWSER'. Falling back to Chromium."
-    chromium --kiosk --incognito --disable-gpu --no-sandbox --disable-dev-shm-usage --disable-software-rasterizer --disable-pdf-extension --proxy-server="${PROXY_URL}" "$URL" 2>&1 &
+    chromium \
+      --kiosk \
+      --incognito \
+      --disable-gpu \
+      --no-sandbox \
+      --disable-dev-shm-usage \
+      --disable-software-rasterizer \
+      --disable-pdf-extension \
+      --proxy-server="${PROXY_URL}" \
+      "$URL" 2>&1 &
 fi
-
 
 BROWSER_PID=$!
 log "Browser started with PID $BROWSER_PID"
@@ -172,3 +226,5 @@ log "Browser started with PID $BROWSER_PID"
 # Wait for browser to exit (either normally or by exit key)
 log "Kiosk running. Press exit key to stop."
 wait $BROWSER_PID
+EXIT_CODE=$?
+log "Browser exited with code $EXIT_CODE"

@@ -1,0 +1,29 @@
+#!/bin/bash
+# KdG Kiosk Setup Launcher
+# Launches the setup wizard with proper error handling
+
+# Check if PyQt5 is installed
+if ! python3 -c "import PyQt5" 2>/dev/null; then
+    echo "Error: PyQt5 is not installed or not working properly."
+    echo "Please install it with: sudo apt install python3-pyqt5"
+    
+    # Try to install it automatically
+    read -p "Would you like to install it now? [Y/n] " -n 1 -r
+    echo
+    if [[ ! $REPLY =~ ^[Nn]$ ]]; then
+        sudo apt update && sudo apt install -y python3-pyqt5
+    else
+        exit 1
+    fi
+fi
+
+# Check if DISPLAY is set
+if [ -z "$DISPLAY" ]; then
+    echo "Warning: DISPLAY environment variable is not set."
+    echo "Setting DISPLAY=:0"
+    export DISPLAY=:0
+fi
+
+# Launch the setup wizard
+exec python3 /usr/share/kdg-kiosk/setup_wizard.py "$@"
+
