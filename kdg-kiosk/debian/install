@@ -1,7 +1,12 @@
 scripts/kiosk-config.sh usr/share/kdg-kiosk/
 scripts/startup-script.sh usr/share/kdg-kiosk/
-scripts/squid.conf.template usr/share/kdg-kiosk/
-scripts/squid/whitelist.acl usr/share/kdg-kiosk/squid/
-kiosk.desktop usr/share/applications
+scripts/squid.conf.template etc/squid/conf.d
+scripts/squid/whitelist.acl etc/squid/
+scripts/error-pages/ERR_ACCESS_DENIED usr/share/squid/errors/en/
+scripts/error-pages/ERR_ACCESS_DENIED usr/share/squid/errors/nl/
+scripts/setup_wizard.py usr/share/kdg-kiosk/
+setup-kiosk.desktop usr/share/applications/
+kiosk.desktop usr/share/applications/
 scripts/kdg-kiosk usr/bin
-kiosk.png /usr/share/pixmaps
+scripts/kdg-kiosk-setup usr/bin
+kiosk.png usr/share/pixmaps

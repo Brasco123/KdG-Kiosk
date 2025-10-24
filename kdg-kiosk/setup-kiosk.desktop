@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=kdg-setup-wizard
+Comment=Configure the KdG Kiosk environment
+Exec=python3 /usr/share/kdg-kiosk/setup_wizard.py
+Icon=kiosk
+Terminal=false
+Type=Application
+Categories=Settings;System;
+StartupNotify=true

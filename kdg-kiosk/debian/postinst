@@ -5,36 +5,40 @@ case "$1" in
     configure)
         chmod 755 /usr/share/kdg-kiosk/kiosk-config.sh || true
         chmod 755 /usr/share/kdg-kiosk/startup-script.sh || true
+        chmod 755 /usr/share/kdg-kiosk/setup_wizard.py || true
+        chmod 755 /usr/bin/kdg-kiosk || true
+        chmod 755 /usr/bin/kdg-kiosk-setup || true
+        
+        # Ensure custom error pages are readable in both languages
+        if [ -f "/usr/share/squid/errors/en/ERR_ACCESS_DENIED" ]; then
+            chmod 644 /usr/share/squid/errors/en/ERR_ACCESS_DENIED || true
+        fi
+        if [ -f "/usr/share/squid/errors/nl/ERR_ACCESS_DENIED" ]; then
+            chmod 644 /usr/share/squid/errors/nl/ERR_ACCESS_DENIED || true
+        fi
     ;;
 esac
 
-# Add xtradeb/apps PPA if missing
-if ! grep -rq "xtradeb/apps" /etc/apt/sources.list.d/ /etc/apt/sources.list; then
-    echo "- Adding xtradeb/apps repository..."
-    sudo add-apt-repository -y ppa:xtradeb/apps
-fi
+CONFIG_TEMPLATE="/etc/squid/conf.d/squid.conf.template"
+CONFIG_FILE="/etc/squid/squid.conf"
 
-# Update package list
-sudo apt update -y
+echo ">> [kdg-kiosk] Generating initial Squid configuration..."
 
-# Ensure snap version is gone
-if snap list | grep -q chromium; then
-    echo "- Removing Snap Chromium..."
-    sudo snap remove chromium || true
-fi
+if [ -f "$CONFIG_TEMPLATE" ]; then
+    export PROXY_IP="127.0.0.1"
+    export PROXY_PORT="3128"
 
-# Install chromium package
-echo "- Installing Chromium from xtradeb..."
-sudo apt install -y chromium --allow-change-held-packages
+    envsubst < "$CONFIG_TEMPLATE" > "$CONFIG_FILE"
 
-# Verify correct binary
-if [ "$(command -v chromium)" = "/usr/bin/chromium" ]; then
-    echo "Chromium installed successfully at /usr/bin/chromium"
+    echo ">> [kdg-kiosk] Enabling and Restarting Squid service..."
+    deb-systemd-invoke enable squid.service || true
+    deb-systemd-invoke restart squid.service || true
 else
-    echo "WARNING: Chromium may not be installed from xtradeb correctly!"
+    echo ">> [kdg-kiosk] Warning: squid.conf.template not found at $CONFIG_TEMPLATE"
 fi
 
-exit 0
+echo ">> [kdg-kiosk] Squid configured successfully."
 
 #DEBHELPER#
 
+exit 0

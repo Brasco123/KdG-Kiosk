@@ -1,0 +1,13 @@
+#!/bin/sh
+set -e
+
+case "$1" in
+    remove|purge)
+        rm -f /etc/squid/conf.d/squid.conf
+        rm -f /etc/squid/whitelist.acl
+        ;;
+esac
+
+#DEBHELPER#
+
+exit 0

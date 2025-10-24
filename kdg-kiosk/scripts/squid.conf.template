@@ -6,13 +6,11 @@
 # Proxy poort (wordt dynamisch ingevuld)
 http_port 127.0.0.1:3128
 
-
-
 # Alleen interne clients
 acl localnet src 127.0.0.1/32
 
 # Whitelist van toegestane websites
-acl allowed_websites dstdomain "/etc/squid/whitelist.acl/whitelist.acl"
+acl allowed_websites dstdomain "/etc/squid/whitelist.acl"
 
 # Alleen veilige poorten
 acl SSL_ports port 443
@@ -23,7 +21,6 @@ acl Safe_ports port 443
 acl blocked_mime rep_mime_type -i ^application/(pdf|zip|x-zip|x-msdownload|msword|vnd\.ms|octet-stream)$
 http_reply_access deny blocked_mime
 
-
 # Downloadblokkering
 acl blocked_downloads urlpath_regex -i \
     \.exe$ \.zip$ \.tar$ \.gz$ \.rar$ \.7z$ \.iso$ \
@@ -33,13 +30,13 @@ acl blocked_downloads urlpath_regex -i \
     \.apk$ \.bin$ \.msi$ \.dmg$
 
 
-# Aangepaste foutpagina’s (invullen via kiosk-config.sh)
+# Aangepaste foutpagina's
 error_directory /usr/share/squid/errors/nl
 deny_info ERR_ACCESS_DENIED blocked_downloads
 deny_info ERR_ACCESS_DENIED !allowed_websites
 
 
-  # Toegangsregels
+# Toegangsregels
 http_access deny blocked_downloads
 
 # Toelaten van HTTPS-tunnels (CONNECT) naar whitelisted sites

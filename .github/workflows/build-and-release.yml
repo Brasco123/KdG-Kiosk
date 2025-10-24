@@ -1,0 +1,131 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*'  # Trigger on version tags like v1.0.0
+  workflow_dispatch:  # Allow manual trigger
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Get version from tag
+      id: get_version
+      run: |
+        if [[ $GITHUB_REF == refs/tags/* ]]; then
+          VERSION=${GITHUB_REF#refs/tags/v}
+        else
+          VERSION="dev-$(date +%Y%m%d-%H%M%S)"
+        fi
+        echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+        echo "Building version: $VERSION"
+    
+    - name: Install build dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y debhelper devscripts build-essential
+    
+    - name: Build .deb package
+      run: |
+        cd kdg-kiosk
+        dpkg-buildpackage -us -uc -b
+        cd ..
+        ls -lah *.deb
+    
+    - name: Get package info
+      id: package_info
+      run: |
+        DEB_FILE=$(ls kdg-kiosk_*.deb | head -n 1)
+        echo "DEB_FILE=$DEB_FILE" >> $GITHUB_OUTPUT
+        echo "DEB_NAME=$(basename $DEB_FILE)" >> $GITHUB_OUTPUT
+        
+        # Get package size
+        SIZE=$(du -h "$DEB_FILE" | cut -f1)
+        echo "SIZE=$SIZE" >> $GITHUB_OUTPUT
+    
+    - name: Create Release Notes
+      id: release_notes
+      run: |
+        cat > release_notes.md << EOF
+        # KdG Kiosk ${{ steps.get_version.outputs.VERSION }}
+        
+        ## Installation
+        
+        ### Quick Install (One-liner)
+        \`\`\`bash
+        curl -sSL https://raw.githubusercontent.com/${{ github.repository }}/main/install.sh | sudo bash
+        \`\`\`
+        
+        ### Manual Install
+        \`\`\`bash
+        # Download the .deb package
+        wget https://github.com/${{ github.repository }}/releases/download/v${{ steps.get_version.outputs.VERSION }}/${{ steps.package_info.outputs.DEB_NAME }}
+        
+        # Install
+        sudo apt install ./${{ steps.package_info.outputs.DEB_NAME }}
+        
+        # Run setup wizard
+        python3 /usr/share/kdg-kiosk/setup_wizard.py
+        \`\`\`
+        
+        ### Using the Installer Script
+        \`\`\`bash
+        wget https://raw.githubusercontent.com/${{ github.repository }}/main/install-kdg-kiosk.py
+        sudo python3 install-kdg-kiosk.py
+        \`\`\`
+        
+        ## Package Details
+        
+        - **Version**: ${{ steps.get_version.outputs.VERSION }}
+        - **Size**: ${{ steps.package_info.outputs.SIZE }}
+        - **Architecture**: amd64
+        - **Compatible**: Debian/Ubuntu
+        
+        ## What's Included
+        
+        - Kiosk mode browser launcher
+        - Setup wizard for configuration
+        - Squid proxy configuration
+        - Keyboard lockdown utilities
+        - Custom keybind support
+        
+        ## After Installation
+        
+        1. Run the setup wizard: \`python3 /usr/share/kdg-kiosk/setup_wizard.py\`
+        2. Configure your kiosk settings
+        3. Start kiosk mode: \`kdg-kiosk\`
+        
+        ## Support
+        
+        For issues and support, please visit:
+        https://github.com/${{ github.repository }}/issues
+        EOF
+        
+        cat release_notes.md
+    
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        name: KdG Kiosk v${{ steps.get_version.outputs.VERSION }}
+        body_path: release_notes.md
+        files: |
+          ${{ steps.package_info.outputs.DEB_FILE }}
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: kdg-kiosk-${{ steps.get_version.outputs.VERSION }}
+        path: ${{ steps.package_info.outputs.DEB_FILE }}
+        retention-days: 90
+
